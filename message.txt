@@ -1,0 +1,189 @@
+﻿#include <iostream>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
+#include <map>
+#include <fstream>
+
+std::vector<std::string> SplitIntoWords(const std::string& text)
+{
+    std::vector<std::string> words;
+    std::string word;
+    for (const char& c : text)
+    {
+        if (c == ' ')
+        {
+            if (!word.empty())
+            {
+                words.push_back(word);
+                word.clear();
+            }
+        }
+        else
+        {
+            word += c;
+        }
+    }
+    if (!word.empty())
+    {
+        words.push_back(word);
+    }
+
+    return words;
+}
+class Swimmer
+{
+public:
+
+    Swimmer(std::string name1, int age1, int height1, int weight1, bool availability_of_a_certificate1)
+    {
+        name = name1;
+        age = age1;
+        height = height1;
+        weight = weight1;
+        availability_of_a_certificate = availability_of_a_certificate1;
+    }
+
+    bool Allow()
+    {
+        if (availability_of_a_certificate && weight <= 75 && height >= 178)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    std::string get_name()
+    {
+        return name;
+    }
+
+private:
+    std::string name;
+    int age;
+    int weight;
+    int height;
+    bool availability_of_a_certificate;
+};
+
+class Runner
+{
+public:
+
+    Runner(std::string name1, int age1, int height1, int weight1)
+    {
+        name = name1;
+        age = age1;
+        height = height1;
+        weight = weight1;
+    }
+
+    bool Allow()
+    {
+        if (age >= 16 && weight <= 80 && height >= 176)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    std::string get_name()
+    {
+        return name;
+    }
+
+private:
+    std::string name;
+    int age;
+    int weight;
+    int height;
+};
+
+void Reading_with_file(std::vector <std::vector<std::string>>& mass)
+{
+    std::string file_input;
+    std::cout << "Input file: " << std::endl;
+    std::cin >> file_input;
+    std::ifstream file1(file_input); //file_input -название файла из которого считываем
+    if (file1.is_open()) //открыли файл
+    {
+        std::string line;
+        while (std::getline(file1 >> std::ws, line))
+        {
+            mass.push_back(SplitIntoWords(line));
+        }
+        file1.close();//ОБЯЗАТЕЛЬНО ЗАКРЫТЬ файл
+    }
+}
+
+
+void Сreate_a_vector_Runners(std::vector <std::vector<std::string>>& mass, std::vector<Runner> runner_list)
+{
+    for (auto i : mass)
+    {
+        Runner temp(i[0], stoi(i[1]), stoi(i[2]), stoi(i[3]));
+        runner_list.push_back(temp);
+    }
+}
+
+bool Check_allow(std::string a)
+{
+    if (a == "no")
+    {
+        return  false;
+    }
+    else if (a == "yes")
+    {
+        return  true;
+    }
+}
+
+void Сreate_a_vector_Swimmers(std::vector <std::vector<std::string>>& mass, std::vector<Swimmer>& swimmer_list)
+{
+    for (auto i : mass)
+    {
+        Swimmer temp(i[0], stoi(i[1]), stoi(i[2]), stoi(i[3]), Check_allow(i[4]));
+        swimmer_list.push_back(temp);
+    }
+}
+
+template <typename T>
+void Record_with_file(const std::vector<T> list)
+{
+    std::string file_output;
+    std::cout << "Output file: " << std::endl;
+    std::cin >> file_output;
+
+    for (T i : list)
+    {
+        if (i.Allow())
+        {
+            std::ofstream file2(file_output, std::ios::app);//ключ для записи в конец файла
+            if (file2.is_open())
+            {
+                file2 << i.get_name() << std::endl;
+                file2.close();
+            }
+        }
+    }
+}
+int main()
+{
+    std::vector <std::vector<std::string>> runners_mass;
+    std::vector<Runner> runners_list;
+    Reading_with_file(runners_mass);
+    Сreate_a_vector_Runners(runners_mass, runners_list);
+    Record_with_file(runners_list);
+
+    std::vector <std::vector<std::string>> swimmers_mass;
+    std::vector<Swimmer> swimmers_list;
+    Reading_with_file(swimmers_mass);
+    Сreate_a_vector_Swimmers(swimmers_mass, swimmers_list);
+    Record_with_file(swimmers_list);
+
+}
